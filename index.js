@@ -139,6 +139,12 @@ Prompt.prototype.onSubmit = function(line) {
     this.answerName = line || this.rl.line;
     this.shortAnswer = line || this.rl.line;
     this.rl.line = '';
+  } else if (this.opt.suggestAndSelect) {
+    choice.value = line || this.rl.line;
+    this.answer = line || this.rl.line;
+    this.answerName = line || this.rl.line;
+    this.shortAnswer = line || this.rl.line;
+    this.rl.line = '';
   } else {
     choice = this.currentChoices.getChoice(this.selected);
     this.answer = choice.value;
@@ -221,6 +227,18 @@ Prompt.prototype.onKeypress = function(e) {
       this.rl.line = autoCompleted
       this.render();
     }
+  } else if (keyName === 'down' && this.opt.suggestAndSelect) {
+    len = this.currentChoices.length;
+    this.selected = (this.selected < len - 1) ? this.selected + 1 : 0;
+    if (this.currentChoices.getChoice(this.selected)) {
+      this.rl.write(ansiEscapes.cursorLeft);
+      var autoCompleted = this.currentChoices.getChoice(this.selected).value;
+      this.rl.write(ansiEscapes.cursorForward(autoCompleted.length));
+      this.rl.line = autoCompleted
+    }
+    this.ensureSelectedInRange();
+    this.render();
+    utils.up(this.rl, 2);
   } else if (keyName === 'down') {
     len = this.currentChoices.length;
     this.selected = (this.selected < len - 1) ? this.selected + 1 : 0;
